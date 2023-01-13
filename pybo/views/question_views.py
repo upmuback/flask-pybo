@@ -18,19 +18,14 @@ def _list():
     question_list = Question.query.order_by(Question.create_date.desc())
     if kw:
         search = '%%{}%%'.format(kw)
-        sub_query = db.session.query(Answer.question_id, Answer.content, User.username) \
-            .join(User, Answer.user_id == User.id).subquery()
-        question_list = question_list \
-            .join(User) \
-            .outerjoin(sub_query, sub_query.c.question_id == Question.id) \
-            .filter(Question.subject.ilike(search) |  # 질문 제목
+        sub_query = db.session.query(Answer.question_id, Answer.content, User.username) .join(User, Answer.user_id == User.id).subquery()
+        question_list = question_list .join(User) .outerjoin(sub_query, sub_query.c.question_id == Question.id) .filter(Question.subject.ilike(search) |  # 질문 제목
                     Question.content.ilike(search) |  # 질문 내용
                     User.username.ilike(search) |  # 질문 작성자
                     sub_query.c.content.ilike(search) |  # 답변 내용
                     sub_query.c.username.ilike(search)  # 답변 작성자
-                    ) \
-            .distinct()
-    question_list = question_list.paginate(page, per_page=10)
+                    ) .distinct()
+    question_list = question_list.paginate(page=page, per_page=10)
     return render_template('question/question_list.html', question_list=question_list, page=page, kw=kw)
 
 
